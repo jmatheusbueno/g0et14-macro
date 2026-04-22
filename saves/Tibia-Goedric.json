@@ -5,27 +5,32 @@
     {
       "action_type": "key",
       "value": "tab",
-      "interval": 30.0
+      "interval": 30.0,
+      "start_delay": 0.0
     },
     {
       "action_type": "key",
       "value": "r",
-      "interval": 26.0
+      "interval": 26.0,
+      "start_delay": 0.0
     },
     {
       "action_type": "key",
       "value": "g",
-      "interval": 1205.0
+      "interval": 1205.0,
+      "start_delay": 0.0
     },
     {
       "action_type": "key",
       "value": "space",
-      "interval": 60.0
+      "interval": 30.0,
+      "start_delay": 0.0
     },
     {
       "action_type": "key",
       "value": "t",
-      "interval": 300.0
+      "interval": 300.0,
+      "start_delay": 5.0
     }
   ]
 }

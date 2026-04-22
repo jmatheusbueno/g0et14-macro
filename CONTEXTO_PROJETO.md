@@ -1,4 +1,4 @@
-# Contexto do Projeto: Mini Macro
+# Contexto do Projeto: G0et1a Macro
 
 ## Objetivo
 
@@ -9,6 +9,7 @@ O usuario pode cadastrar varias macros, cada uma com:
 - tipo de acao (`key` ou `mouse`)
 - valor da acao (tecla ou botao do mouse)
 - intervalo em segundos
+- delay individual em segundos (padrao `0`)
 
 Todas as macros sao executadas em paralelo logico dentro de uma unica thread de trabalho, com um delay inicial opcional.
 
@@ -22,13 +23,23 @@ Atualmente o projeto tambem possui persistencia em arquivos JSON e suporte a dis
 
 ## Estrutura Atual
 
-- `app.py`: aplicacao completa (UI, validacao, modelo de dados e runtime de execucao).
+- `app.py`: ponto de entrada da aplicacao.
+- `macro_app.py`: camada de interface (Tkinter) e orquestracao de fluxo.
+- `macro_models.py`: modelos de dominio (`MacroItem`).
+- `macro_constants.py`: mapeamentos de teclas e botoes de mouse.
+- `macro_validator.py`: validacoes e normalizacao de entradas.
+- `macro_storage.py`: persistencia de saves em JSON.
+- `macro_runner.py`: execucao agendada das macros em thread.
 - `README.md`: instrucoes de instalacao e uso.
 - `requirements.txt`: dependencias Python.
 - `saves/`: pasta de configuracoes salvas em JSON.
-- `dist/`: saida do executavel (`mini-macro.exe`) quando gerado via PyInstaller.
+- `dist/`: saida do executavel (`g0et1a-macro.exe`) quando gerado via PyInstaller.
 
 ## Arquitetura (app.py)
+
+`app.py` agora somente chama `main()` de `macro_app.py`.
+
+## Arquitetura (modular)
 
 ### Modelo
 
@@ -40,31 +51,29 @@ Atualmente o projeto tambem possui persistencia em arquivos JSON e suporte a dis
 
 ### Controlador/UI
 
-- `MacroApp`
-  - Monta a interface com `ttk`.
-  - Gerencia lista de macros em memoria (`self.macros`).
-  - Faz validacoes de entrada (tecla, intervalo, delay inicial).
-  - Permite salvar e carregar macros pela secao de saves.
-  - Controla estado de execucao (`start/stop`) e estados dos botoes/campos.
+- `MacroApp` (em `macro_app.py`)
+  - monta interface com `ttk`
+  - gerencia estado de tela e lista de macros em memoria
+  - delega validacoes para `MacroValidator`
+  - delega persistencia para `SaveRepository`
+  - delega agendamento/execucao para `MacroRunner`
 
 ### Execucao de macros
 
-- `start_macro()` cria agenda (`schedule`) com `next_run` para cada macro.
-- `_run_macro(schedule)` roda em thread daemon e:
-  - verifica macros vencidas pelo relogio monotonic (`time.monotonic()`)
-  - executa acao
-  - recalcula proxima execucao por `interval`
-  - aguarda ate o proximo disparo (ou parada)
-- `stop_macro()` sinaliza `stop_event` para interromper loop.
+- `MacroRunner` (em `macro_runner.py`)
+  - cria agenda (`schedule`) com `next_run` por macro
+  - roda loop em thread daemon usando `time.monotonic()`
+  - aplica delay global antes dos delays individuais
+  - recalcula execucoes por `interval` ate parada
 
 ### Persistencia (saves)
 
-- `save_macros()` salva em JSON na pasta `saves/`:
+- `SaveRepository` (em `macro_storage.py`) salva em JSON na pasta `saves/`:
   - `version`
   - `start_delay`
-  - lista `macros` com `action_type`, `value` e `interval`
-- `load_selected_save()` carrega arquivo selecionado, valida dados e reconstrui `self.macros`.
-- `_refresh_saves_list()` atualiza a listagem de arquivos `.json` para carregamento.
+  - lista `macros` com `action_type`, `value`, `interval` e `start_delay`
+- carrega arquivo selecionado, valida dados e reconstrui lista de macros
+- lista arquivos `.json` para o combobox de carregamento
 - Nome de save e sanitizado para aceitar apenas letras, numeros, `_` e `-`.
 
 ## Fluxo Funcional
@@ -73,10 +82,11 @@ Atualmente o projeto tambem possui persistencia em arquivos JSON e suporte a dis
 2. Informa valor e intervalo.
 3. Adiciona/atualiza/remove itens na lista.
 4. Informa delay inicial.
-5. Opcionalmente salva a configuracao na secao de saves.
-6. Opcionalmente carrega uma configuracao salva da pasta `saves/`.
-7. Inicia execucao.
-8. App dispara todas as macros em seus respectivos intervalos ate parar.
+5. Informa delay individual em cada macro (opcional, padrao 0).
+6. Opcionalmente salva a configuracao na secao de saves.
+7. Opcionalmente carrega uma configuracao salva da pasta `saves/`.
+8. Inicia execucao.
+9. App aplica primeiro o delay global, depois o delay individual de cada macro, e entao segue com os intervalos.
 
 ## Regras de Validacao Importantes
 
@@ -134,11 +144,11 @@ Gerar executavel Windows:
 
 ```bash
 python -m pip install pyinstaller
-python -m PyInstaller --noconfirm --clean --onefile --windowed --name mini-macro app.py
+python -m PyInstaller --noconfirm --clean --onefile --windowed --name g0et1a-macro app.py
 ```
 
 Saida do executavel:
 
 ```text
-dist/mini-macro.exe
+dist/g0et1a-macro.exe
 ```

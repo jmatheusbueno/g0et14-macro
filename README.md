@@ -1,4 +1,4 @@
-# Mini Macro
+# G0et1a Macro
 
 Projeto simples de macro com interface grafica para criar varias macros, cada uma com seu proprio intervalo.
 
@@ -11,6 +11,17 @@ Cada macro pode ser:
 
 - Python 3.10+
 - Windows/macOS/Linux
+
+## Estrutura do projeto
+
+- `app.py`: ponto de entrada da aplicacao.
+- `macro_app.py`: camada de interface (Tkinter) e fluxo de interacao.
+- `macro_models.py`: modelos de dominio (ex.: `MacroItem`).
+- `macro_constants.py`: constantes e mapeamentos de teclas/botoes.
+- `macro_validator.py`: validacoes e normalizacao de entrada.
+- `macro_storage.py`: persistencia de saves (`saves/*.json`).
+- `macro_runner.py`: agendador/execucao das macros em thread.
+- `saves/`: arquivos de configuracao salvos.
 
 ## Instalacao
 
@@ -33,12 +44,19 @@ python app.py
 	- Tecla: `a`, `s`, `r`, `space`, `enter`, `tab`, etc.
 	- Mouse: `left`, `right` ou `middle`.
 3. Informe o intervalo em segundos (por exemplo, `30`).
-4. Clique em **Adicionar** para incluir a macro na lista.
+4. Informe o campo **Delay do input (s)** da macro (padrao `0`).
+5. Clique em **Adicionar** para incluir a macro na lista.
 5. Repita para adicionar quantas macros quiser.
 6. Use **Atualizar** para editar uma macro selecionada na lista.
 7. Use **Remover** para excluir uma macro selecionada.
 8. Informe o campo **Delay inicial (s)** (ex.: `10`) para esperar esse tempo antes da primeira execucao.
 9. Clique em **Iniciar** para executar todas as macros da lista e em **Parar** para interromper.
+
+Ordem de execucao dos delays:
+
+- Primeiro o **Delay inicial (global)**.
+- Depois o **Delay do input** de cada macro.
+- Em seguida a macro passa a repetir no intervalo configurado.
 
 ### Atalhos no campo Tecla
 
@@ -70,12 +88,14 @@ Cada arquivo em `saves/` usa JSON no formato:
 		{
 			"action_type": "key",
 			"value": "space",
-			"interval": 30
+			"interval": 30,
+			"start_delay": 0
 		},
 		{
 			"action_type": "mouse",
 			"value": "left",
-			"interval": 40
+			"interval": 40,
+			"start_delay": 2
 		}
 	]
 }
@@ -87,12 +107,12 @@ Para gerar um `.exe` com PyInstaller:
 
 ```bash
 python -m pip install pyinstaller
-python -m PyInstaller --noconfirm --clean --onefile --windowed --name mini-macro app.py
+python -m PyInstaller --noconfirm --clean --onefile --windowed --name g0et1a-macro app.py
 ```
 
 Saida esperada:
 
-- `dist/mini-macro.exe`
+- `dist/g0et1a-macro.exe`
 
 Ao rodar o executavel, a pasta `saves/` e criada/usada ao lado do `.exe`.
 
