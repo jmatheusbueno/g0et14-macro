@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "start_delay": 5.0,
+  "macros": [
+    {
+      "action_type": "key",
+      "value": "tab",
+      "interval": 30.0
+    },
+    {
+      "action_type": "key",
+      "value": "r",
+      "interval": 26.0
+    },
+    {
+      "action_type": "key",
+      "value": "g",
+      "interval": 1205.0
+    },
+    {
+      "action_type": "key",
+      "value": "space",
+      "interval": 60.0
+    },
+    {
+      "action_type": "key",
+      "value": "t",
+      "interval": 300.0
+    }
+  ]
+}
